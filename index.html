@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>鬼灭之刃：狛治的抉择 - 十年宿命</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="game-container">
+    <h1>🔥 鬼灭之刃：狛治的抉择 🔥</h1>
+    <h2>—— 十年宿命，人鬼殊途 ——</h2>
+
+    <div id="timeline-container">
+        <div id="timeline-label">
+            <span class="key-plot-point">时间线：</span>
+            <span id="current-year">大正 1 年</span> / <span id="max-year">大正 10 年</span>
+        </div>
+        <div id="timeline"><div id="timeline-progress"></div></div>
+    </div>
+    
+    <div id="stats">
+        <div class="stat-item">战力值：<span id="str" class="stat-value">0</span></div>
+        <div class="stat-item">人性值：<span id="hum" class="stat-value">0</span></div>
+        <div class="stat-item">鬼性值：<span id="dem" class="stat-value">0</span></div>
+        <div class="stat-item">体力点：<span id="tp" class="stat-value">0</span></div>
+        <div class="stat-item">
+    健康值 (HP): <span class="stat-value" id="hp">100</span>
+</div>
+        <div class="stat-item">恋雪：<span id="ko-h" class="stat-value">0</span></div>
+        <div class="stat-item">义勇：<span id="gi-h" class="stat-value">0</span></div>
+        <div class="stat-item">杏寿郎：<span id="re-h" class="stat-value">0</span></div>
+    </div>
+
+    <img id="story-image" src="" alt="剧情图片">
+    <div id="story-text"></div>
+    <div id="choices"></div>
+    <p class="result-text" id="result-message"></p>
+</div>
+
+<div id="ending-screen">
+    <h2>【宿命的终结】</h2>
+    <p id="ending-text"></p>
+    <button class="choice-button" onclick="window.location.reload();">重启宿命轮回</button>
+</div>
+
+<script src="core.js"></script>
+<script src="data_intro.js"></script>
+<script src="data_human.js"></script>
+<script src="data_demon.js"></script>
+<script src="main.js"></script>
+
+</body>
+</html>
