@@ -3,53 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>鬼灭之刃：狛治的抉择 - 十年宿命</title>
+    <title>鬼灭：宿命之轮</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div id="game-container">
-    <h1>🔥 鬼灭之刃：狛治的抉择 🔥</h1>
-    <h2>—— 十年宿命，人鬼殊途 ——</h2>
+<!-- 全局粒子效果 (用于好感度) -->
+<div id="global-particle-container"></div>
 
-    <div id="timeline-container">
-        <div id="timeline-label">
-            <span class="key-plot-point">时间线：</span>
-            <span id="current-year">大正 1 年</span> / <span id="max-year">大正 10 年</span>
+<div id="game-wrapper">
+    <!-- 背景纹理 (CSS中控制) -->
+    <div class="bg-pattern"></div>
+
+    <div id="game-container">
+        <header>
+            <h1>👹 鬼灭 · 宿命 👹</h1>
+            <!-- 时间轴 -->
+            <div class="timeline-box">
+                <span id="timeline-text">大正 1 年</span>
+                <div class="progress-bar"><div id="timeline-progress"></div></div>
+                <span id="timeline-end">大正 12 年</span>
+            </div>
+        </header>
+
+        <!-- V12.1 属性面板 (重构) -->
+        <div id="stats-panel">
+            <!-- 核心属性 -->
+            <div class="stat-card str" title="战力 (STR): 10点解锁一型">
+                <span class="label">战力</span>
+                <span id="str" class="val">0</span>
+                <span id="breath-level" class="sub-label">未入门</span>
+            </div>
+            <div class="stat-card hum" title="人性 (HUM): 影响回血与守护选项">
+                <span class="label">人性</span>
+                <span id="hum" class="val">0</span>
+            </div>
+            <div class="stat-card dem" title="鬼性 (DEM): 鬼线专属">
+                <span class="label">鬼性</span>
+                <span id="dem" class="val">0</span>
+            </div>
+            <div class="stat-card hp" title="生命 (HP): 低于50%时战力下降">
+                <span class="label">生命 (HP)</span>
+                <span id="hp" class="val">100</span>
+                <div class="hp-bar-bg">
+                    <div id="hp-bar-fill"></div>
+                    <!-- HP负面状态 -->
+                    <span id="hp-status-effect" class="hidden"></span>
+                </div>
+            </div>
+            <!-- V12.1 新增: 行动点 (AP) -->
+            <div class="stat-card ap hidden" title="行动点 (AP): 桥接阶段使用">
+                <span class="label">行动点</span>
+                <span id="ap" class="val">0</span>
+            </div>
         </div>
-        <div id="timeline"><div id="timeline-progress"></div></div>
+
+        <!-- V12.1 好感度面板 (动态显示) -->
+        <div id="relationship-panel">
+            <span class="rel-card" data-value="gi_h" title="富冈 义勇">
+                🌊 <b id="gi-h">0</b>
+            </span>
+            <span class="rel-card" data-value="sa_h" title="锖兔">
+                🦊 <b id="sa-h">0</b>
+            </span>
+            <span class="rel-card" data-value="re_h" title="炼狱 杏寿郎">
+                🔥 <b id="re-h">0</b>
+            </span>
+            <span class="rel-card" data-value="sn_h" title="不死川 实弥">
+                🌪️ <b id="sn-h">0</b>
+            </span>
+            <span class="rel-card" data-value="gy_h" title="悲鸣屿 行冥">
+                ⛰️ <b id="gy-h">0</b>
+            </span>
+            <span class="rel-card" data-value="k_h" title="蝴蝶 忍">
+                🦋 <b id="k-h">0</b>
+            </span>
+            <span class="rel-card" data-value="uz_h" title="宇髓 天元">
+                🎶 <b id="uz-h">0</b>
+            </span>
+        </div>
+
+        <!-- 视觉区域 -->
+        <div class="visual-area">
+            <img id="story-image" src="" alt="剧情画面" onerror="this.style.display='none'">
+        </div>
+
+        <!-- 剧情文本 -->
+        <div id="story-text"></div>
+        
+        <!-- 选项 -->
+        <div id="choices"></div>
+        
+        <!-- 结果提示 -->
+        <div id="result-message" class="hidden"></div>
     </div>
-    
-    <div id="stats">
-        <div class="stat-item">战力值：<span id="str" class="stat-value">0</span></div>
-        <div class="stat-item">人性值：<span id="hum" class="stat-value">0</span></div>
-        <div class="stat-item">鬼性值：<span id="dem" class="stat-value">0</span></div>
-        <div class="stat-item">体力点：<span id="tp" class="stat-value">0</span></div>
-        <div class="stat-item">
-    健康值 (HP): <span class="stat-value" id="hp">100</span>
-</div>
-        <div class="stat-item">恋雪：<span id="ko-h" class="stat-value">0</span></div>
-        <div class="stat-item">义勇：<span id="gi-h" class="stat-value">0</span></div>
-        <div class="stat-item">杏寿郎：<span id="re-h" class="stat-value">0</span></div>
+
+    <!-- 结局画面 -->
+    <div id="ending-screen" class="hidden">
+        <h2 id="ending-title"></h2>
+        <div id="ending-text"></div>
+        <button class="choice-button restart-btn" onclick="window.location.reload()">🔥 重启轮回 🔥</button>
     </div>
-
-    <img id="story-image" src="" alt="剧情图片">
-    <div id="story-text"></div>
-    <div id="choices"></div>
-    <p class="result-text" id="result-message"></p>
 </div>
 
-<div id="ending-screen">
-    <h2>【宿命的终结】</h2>
-    <p id="ending-text"></p>
-    <button class="choice-button" onclick="window.location.reload();">重启宿命轮回</button>
-</div>
-
+<!-- 
+    加载顺序优化:
+    1. core.js (核心引擎, V12.1)
+    2. main.js (定义 G.state 和 G.endings, V11)
+    3. data_intro.js (V12.1 修复版)
+    4. data_human.js (V12.1 修复版)
+    5. data_demon.js (V12.1 修复版)
+-->
 <script src="core.js"></script>
+<script src="main.js"></script>
 <script src="data_intro.js"></script>
 <script src="data_human.js"></script>
 <script src="data_demon.js"></script>
-<script src="main.js"></script>
 
 </body>
 </html>

@@ -1,59 +1,90 @@
-// data_intro.js - 序章与转折 (Year 1-3)
+// data_intro.js - V12.1 修复版
+// 修复了 'requires' 和 'hideIf' 为函数
 
 (function() {
     const G = window.Game;
 
-    // --- Year 1: 起源 ---
+    // --- 0. 通用结局 (V12.1: 移至 main.js) ---
+    // (main.js 似乎已经包含了结局，这里不再重复定义)
+
+
+    // --- 1. 序章 (大正1年) ---
     G.addScene('intro', {
-        title: "大正 1 年：黑暗中的野兽",
-        text: "你是<span class='key-plot-point'>狛治</span>。为了重病的父亲，你被迫偷窃，被人称为'鬼之子'。现在，一群暴徒正围着你。",
-        image: "Placeholder: 街头斗殴",
-        choices: [
-            { text: "A. 拼死抵抗，打断他们的骨头 (鬼性+)", action: () => { G.updateStats({dem:5, str:2}); G.gotoScene('year1_meet_keizo'); } },
-            { text: "B. 默默忍受，为了父亲赎罪 (人性+)", action: () => { G.updateStats({hum:5}); G.gotoScene('year1_meet_keizo'); } }
-        ]
-    });
-
-    G.addScene('year1_meet_keizo', {
-        text: "在你即将暴走时，素流道场主<span class='key-plot-point'>庆藏</span>收留了你。你见到了他病弱的女儿<span class='key-plot-point'>恋雪</span>。",
-        choices: [
-            { text: "努力修行，照顾恋雪 (人性+, 恋雪好感+)", action: () => { G.updateStats({hum:10, ko_h:10, str:5}); G.gotoScene('year2_adjustment'); } },
-            { text: "只追求力量，报复社会 (鬼性+, 战力+)", action: () => { G.updateStats({dem:5, str:10}); G.gotoScene('year2_adjustment'); } }
-        ]
-    });
-
-    // --- Year 2: 调整 ---
-    G.addScene('year2_adjustment', G.createAdjustment(
-        "大正 2 年：道场的羁绊",
-        "在道场的日子平淡而幸福。你的拳法日益精进。",
-        'year3_tragedy', 1, // 下一场景，年份+1
-        [
-            { label: "苦练素流拳法 (战力+5)", cost: 3, effect: () => G.updateStats({str:5}) },
-            { label: "带恋雪去看烟火 (恋雪好感+10)", cost: 4, effect: () => G.updateStats({ko_h:10, hum:5}) },
-            { label: "挑战邻近道场 (战力+8, 鬼性+2)", cost: 5, effect: () => G.updateStats({str:8, dem:2}) }
-        ]
-    ));
-
-    // --- Year 3: 转折点 ---
-    G.addScene('year3_tragedy', {
-        title: "大正 3 年：血染的井水",
-        text: "噩耗传来。隔壁剑道场的人在井里投毒。庆藏师父和恋雪...<span class='key-plot-point'>死了</span>。你的世界崩塌了。",
+        title: "序章：血色道场",
+        image: "intro_blood.jpg",
+        text: "大正1年。你是<span class='key-plot-point'>狛治</span>。眼前是地狱：庆藏师傅和恋雪倒在毒井旁，尸体已经冰冷。你的未婚妻、你的恩师...你生命中唯一的光，熄灭了。这股无法遏制的狂怒和悲痛即将撕裂你的理值。",
         choices: [
             { 
-                text: "A. 【鬼性路】血债血偿！徒手杀光所有人！", 
-                action: () => { 
-                    G.state.akaza_path = 'demon';
-                    G.updateStats({dem:50, hum:-50, str:30});
-                    G.gotoScene('year4_demon_start', 1);
+                text: "🩸 '杀！' (你失去了理智...将下毒的67名门徒全部打死。)", 
+                action: (s, G) => { // V12.1: 传递 s 和 G
+                    G.triggerShake();
+                    G.updateStats({str:10, dem:20, hum:-10, trait: 'avenger'});
+                    // V12.1: G.state.trait = 'avenger' 已被 G.updateStats 取代
+                    G.setResult("获得特质: 【复仇之拳】 (STR获取x1.2, HUM获取x0.8)", "bad");
+                    G.gotoScene('scene_year2_demon_encounter', 0); // V12.1: 桥接阶段会自动+1年,这里传0
                 } 
             },
             { 
-                text: "B. 【人性路】压抑杀意，安葬他们，寻求正义。", 
-                action: () => { 
-                    G.state.akaza_path = 'human';
-                    G.updateStats({hum:50, str:10}); 
-                    G.gotoScene('year4_human_start', 1);
+                text: "💧 '我...我不能再杀人了。' (你打断了他们每一个人的骨头，但强行压制住了杀意...安葬了师傅和恋雪。)", 
+                action: (s, G) => {
+                    G.updateStats({str:10, dem:5, hum:15, trait: 'guardian'});
+                    G.setResult("获得特质: 【守护之拳】 (HUM/好感获取x1.2)", "good");
+                    G.gotoScene('scene_year2_human_encounter', 0);
                 } 
+            },
+            { 
+                text: "⚪ '...' (你没有复仇，愤怒已经被巨大的空虚所吞噬...像个幽灵一样在世间游荡。)", 
+                action: (s, G) => {
+                    G.updateStats({hum:10, dem:10, str: 0, trait: 'void'}); // 放弃了武道
+                    G.setResult("获得特质: 【虚无之拳】 (所有获取x1.1)");
+                    G.gotoScene('scene_year2_human_encounter', 0);
+                } 
+            }
+        ]
+    });
+
+    // --- 2. 路线分歧 (大正2年) ---
+
+    G.addScene('scene_year2_human_encounter', {
+        title: "大正2年: 主公的援手",
+        image: "intro_human.jpg",
+        text: "你离开了道场，漫无目的地流浪了一年。你因饥饿和力竭倒在雪地中，意识即将模糊。一个声音在你耳边响起：'可怜的孩子...你背负了太多。' 鬼杀队的主公·产屋敷耀哉找到了你，他温柔地握住了你的手。",
+        choices: [
+            { 
+                text: "（握住他的手）'我...想用这双拳头守护点什么。'", 
+                action: (s, G) => {
+                    G.updateStats({hum:20, akaza_path: 'human'});
+                    G.gotoScene('year3_human_training', 1); // 开始第一年
+                }
+            },
+            { 
+                text: "（推开他）'别碰我！我的命运由我自己决定！'", 
+                action: (s, G) => G.showEnding('e_wanderer')
+            }
+        ]
+    });
+
+    G.addScene('scene_year2_demon_encounter', {
+        title: "大正2年: 鬼王降临",
+        image: "intro_demon.jpg",
+        text: "你在血腥的道场废墟中坐了一年，如同行尸走肉。一个风度翩翩的男人出现在你面前。'真是出色的破坏力...你天生就是强者。' 他是鬼王·无惨。'你不想忘记这一切吗？变成鬼吧，你可以拥有永恒的力量。'",
+        choices: [
+            { 
+                text: "（走向无惨）'我需要力量...忘记痛苦，破坏一切的力量。'", 
+                action: (s, G) => {
+                    G.updateStats({str:10, dem:30, akaza_path: 'demon', trait: 'destroyer'});
+                    G.setResult("获得特质: 【破坏之鬼】 (STR判定需求-10)", "bad");
+                    G.gotoScene('year3_demon_adaptation', 1);
+                }
+            },
+            { 
+                text: "（挥拳）'怪物...滚开！'", 
+                action: (s, G) => {
+                    G.triggerShake();
+                    G.updateStats({str:-10, dem:20, hum:5, akaza_path: 'demon', trait: 'defiant_demon'}); // 力量倒退
+                    G.setResult("无惨轻蔑地抓住了你的拳头。'愚蠢，但很有骨气。' 他重创了你，强行将他的血灌入了你的体内。", "bad");
+                    G.gotoScene('year3_demon_forced_adaptation', 1);
+                }
             }
         ]
     });
